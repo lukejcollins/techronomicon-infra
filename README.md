@@ -15,12 +15,13 @@ Our infrastructure is an arcane construct, woven together through the art of Ter
 
 Summon the constructs through the dark art of Terraform.
 
-\```sh
-\# Initiate Terraform's magical energies
+```sh
+# Initiate Terraform's magical energies
 terraform init
 
-\# Conjure a vision of what is to be created
+# Conjure a vision of what is to be created
 terraform plan
+```
 
 ## GitHub Actions Ritual 🌀
 
