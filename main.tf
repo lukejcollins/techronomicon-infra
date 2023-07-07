@@ -21,10 +21,10 @@ resource "aws_vpc" "my_vpc" {
   }
 }
 
-# Definition of AWS subnet resources
+# Definition of an AWS subnet resource
 resource "aws_subnet" "my_public_subnet1" {
   vpc_id            = aws_vpc.my_vpc.id
-  cidr_block        = "10.0.1.0/24"
+  cidr_block        = "10.0.3.0/24"  # Use a different CIDR block for my_public_subnet1
   availability_zone = "eu-west-1a"
 
   map_public_ip_on_launch = true
