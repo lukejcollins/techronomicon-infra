@@ -57,6 +57,34 @@ resource "aws_internet_gateway" "my_igw" {
   }
 }
 
+# Create a custom route table in your VPC
+resource "aws_route_table" "custom" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  # Add a route to the Internet Gateway for all non-local traffic
+  route {
+    cidr_block = "0.0.0.0/0" # For all non-local traffic
+    gateway_id = aws_internet_gateway.my_igw.id # The Internet Gateway to route traffic to
+  }
+
+  tags = {
+    Name = "my_route_table"
+  }
+}
+
+# Associate the first public subnet with the custom route table
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.my_public_subnet1.id # The ID of the subnet to associate with the route table
+  route_table_id = aws_route_table.custom.id # The ID of the custom route table
+}
+
+# Associate the second public subnet with the custom route table
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.my_public_subnet2.id # The ID of the subnet to associate with the route table
+  route_table_id = aws_route_table.custom.id # The ID of the custom route table
+}
+
+
 # Variables for your database username and password
 variable "DB_USERNAME" {}
 variable "DB_PASSWORD" {}
