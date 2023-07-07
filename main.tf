@@ -15,6 +15,8 @@ terraform {
 # Definition of an AWS VPC resource
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
 
   tags = {
     Name = "my_vpc"
@@ -109,5 +111,7 @@ resource "aws_db_instance" "db" {
 
   apply_immediately     = true
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
+
+  publicly_accessible   = true
 }
 
