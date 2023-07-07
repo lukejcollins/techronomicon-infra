@@ -34,8 +34,8 @@ resource "aws_internet_gateway" "my_igw" {
 }
 
 # Variables for your database username and password
-variable "db_username" {}
-variable "db_password" {}
+variable "DB_USERNAME" {}
+variable "DB_PASSWORD" {}
 
 # A security group for your RDS instance
 resource "aws_security_group" "sg" {
@@ -77,8 +77,8 @@ resource "aws_db_instance" "db" {
   engine_version    = "13"
   instance_class    = "db.t3.micro"
   allocated_storage = 20
-  username          = var.db_username  # Uses the db_username variable for the DB username
-  password          = var.db_password  # Uses the db_password variable for the DB password
+  username          = var.DB_USERNAME  # Uses the DB_USERNAME variable for the DB username
+  password          = var.DB_PASSWORD  # Uses the DB_PASSWORD variable for the DB password
   vpc_security_group_ids = [aws_security_group.sg.id]  # Associates this RDS instance with the security group
   db_subnet_group_name = aws_db_subnet_group.my_db_subnet_group.name  # Associates this RDS instance with the DB subnet group
 
