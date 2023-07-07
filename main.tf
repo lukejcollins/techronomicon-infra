@@ -109,5 +109,7 @@ resource "aws_db_instance" "db" {
 
   apply_immediately     = true
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
+
+  publicly_accessible   = true
 }
 
