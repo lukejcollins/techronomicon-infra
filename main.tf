@@ -3,24 +3,10 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-# Creation of S3 bucket for state file
-resource "aws_s3_bucket" "tf_state_bucket" {
-  bucket = "lEqTU6HVkASAQwQQJajEmv42xCbJyRah"
-  acl    = "private"
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
 # Set up state file in S3 bucket
 terraform {
   backend "s3" {
-    bucket = "lEqTU6HVkASAQwQQJajEmv42xCbJyRah"
+    bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxc"
     key    = "dev/techronomicon/terraform.tfstate"
     region = "eu-west-1"
   }
