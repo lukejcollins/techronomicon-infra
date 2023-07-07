@@ -21,15 +21,28 @@ resource "aws_vpc" "my_vpc" {
   }
 }
 
-# Definition of an AWS subnet resource
-resource "aws_subnet" "my_public_subnet" {
-  vpc_id     = aws_vpc.my_vpc.id
-  cidr_block = "10.0.1.0/24"
+# Definition of AWS subnet resources
+resource "aws_subnet" "my_public_subnet1" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "eu-west-1a"
 
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "my_public_subnet"
+    Name = "my_public_subnet1"
+  }
+}
+
+resource "aws_subnet" "my_public_subnet2" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "eu-west-1b"
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "my_public_subnet2"
   }
 }
 
@@ -72,7 +85,10 @@ resource "aws_security_group" "sg" {
 # A DB subnet group for your RDS instance
 resource "aws_db_subnet_group" "my_db_subnet_group" {
   name       = "my_db_subnet_group"
-  subnet_ids = [aws_subnet.my_public_subnet.id]  # Associates this DB subnet group with your public subnet
+  subnet_ids = [
+    aws_subnet.my_public_subnet1.id,
+    aws_subnet.my_public_subnet2.id,
+  ]  # Associates multiple subnets with your DB subnet group
 
   tags = {
     Name = "my_db_subnet_group"
@@ -81,16 +97,17 @@ resource "aws_db_subnet_group" "my_db_subnet_group" {
 
 # The RDS instance
 resource "aws_db_instance" "db" {
-  identifier_prefix = "postgres-db"
-  engine            = "postgres"
-  engine_version    = "13"
-  instance_class    = "db.t3.micro"
-  allocated_storage = 20
-  username          = var.DB_USERNAME  # Uses the DB_USERNAME variable for the DB username
-  password          = var.DB_PASSWORD  # Uses the DB_PASSWORD variable for the DB password
+  identifier_prefix     = "postgres-db"
+  engine                = "postgres"
+  engine_version        = "13"
+  instance_class        = "db.t3.micro"
+  allocated_storage     = 20
+  username              = var.DB_USERNAME  # Uses the DB_USERNAME variable for the DB username
+  password              = var.DB_PASSWORD  # Uses the DB_PASSWORD variable for the DB password
   vpc_security_group_ids = [aws_security_group.sg.id]  # Associates this RDS instance with the security group
-  db_subnet_group_name = aws_db_subnet_group.my_db_subnet_group.name  # Associates this RDS instance with the DB subnet group
+  db_subnet_group_name  = aws_db_subnet_group.my_db_subnet_group.name  # Associates this RDS instance with the DB subnet group
 
-  apply_immediately = true
-  skip_final_snapshot = true  # Skips creating a final DB snapshot when the DB instance is deleted
+  apply_immediately     = true
+  skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
 }
+
