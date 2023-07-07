@@ -3,6 +3,29 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+# Creation of S3 bucket for state file
+resource "aws_s3_bucket" "tf_state_bucket" {
+  bucket = "lEqTU6HVkASAQwQQJajEmv42xCbJyRah"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# Set up state file in S3 bucket
+terraform {
+  backend "s3" {
+    bucket = "lEqTU6HVkASAQwQQJajEmv42xCbJyRah"
+    key    = "dev/techronomicon/terraform.tfstate"
+    region = "eu-west-1"
+  }
+}
+
 # Definition of an AWS VPC resource
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
