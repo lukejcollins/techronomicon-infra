@@ -198,12 +198,52 @@ resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
   policy_arn = aws_iam_policy.parameter_store_access.arn
 }
 
+# Security group for instance
+resource "aws_security_group" "instance_sg" {
+  name        = "instance_sg"
+  description = "Security group for EC2 instances"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]  // Allow all outbound traffic
+  }
+
+  tags = {
+    Name = "instance_sg"
+  }
+
 # EC2 instance
 resource "aws_instance" "example" {
   ami           = "ami-0fb2f0b847d44d4f0"
   instance_type = "t2.micro"
 
   subnet_id = aws_subnet.my_public_subnet1.id
+
+  vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
   key_name = "techronomicon-ssh"
   user_data = <<-EOF
