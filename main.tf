@@ -281,6 +281,7 @@ resource "aws_instance" "example" {
     #!/bin/bash
     mkdir -p /etc/ecs
     echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
+    dnf install ecs-init
     systemctl enable --now ecs
   EOF
 
