@@ -425,7 +425,7 @@ resource "aws_ecs_service" "service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.tg.arn
-    container_name   = "my_container"
+    container_name   = "techronomicon-container"
     container_port   = 8000
   }
 }
