@@ -237,10 +237,40 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
+# Create IAM role
+resource "aws_iam_role" "ecs_role" {
+  name = "ecs_role"
+
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+# Attach AmazonEC2ContainerServiceforEC2Role managed policy
+resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+# Create IAM instance profile
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "ecs_instance_profile"
+  role = aws_iam_role.ecs_role.name
+}
+
 # EC2 instance
 resource "aws_instance" "example" {
   ami           = "ami-0fb2f0b847d44d4f0"
   instance_type = "t2.micro"
+
+  iam_instance_profile        = aws_iam_instance_profile.ecs_instance_profile.name
 
   subnet_id = aws_subnet.my_public_subnet1.id
 
