@@ -290,6 +290,94 @@ resource "aws_instance" "example" {
   }
 }
 
+resource "aws_security_group" "ecs_sg" {
+  name        = "ecs_sg"
+  description = "Allow inbound traffic"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    security_groups = [aws_security_group.alb_sg.id] # allow only ALB to connect to the ECS service
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group" "alb_sg" {
+  name        = "alb_sg"
+  description = "Allow all inbound traffic"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_lb" "alb" {
+  name               = "my-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = [aws_subnet.my_public_subnet1.id, aws_subnet.my_public_subnet2.id]
+
+  tags = {
+    Name = "my-alb"
+  }
+}
+
+resource "aws_lb_listener" "listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
+}
+
+resource "aws_lb_target_group" "tg" {
+  name     = "my-tg"
+  port     = 8000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.my_vpc.id
+
+  health_check {
+    enabled             = true
+    interval            = 30
+    path                = "/"
+    port                = "traffic-port"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "my-tg"
+  }
+}
+
 # ECS Cluster
 resource "aws_ecs_cluster" "cluster" {
   name = "techronomicon-cluster"
@@ -333,5 +421,11 @@ resource "aws_ecs_service" "service" {
 
   network_configuration {
     subnets = [aws_subnet.my_public_subnet1.id, aws_subnet.my_public_subnet2.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.tg.arn
+    container_name   = "my_container"
+    container_port   = 8000
   }
 }
