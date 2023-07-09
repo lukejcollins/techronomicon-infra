@@ -279,9 +279,9 @@ resource "aws_instance" "example" {
   key_name = "techronomicon-ssh"
   user_data = <<-EOF
     #!/bin/bash
+    mkdir -p /etc/ecs
     echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
-    sudo amazon-linux-extras install -y ecs
-    sudo systemctl enable --now ecs
+    systemctl enable --now ecs
   EOF
 
   tags = {
