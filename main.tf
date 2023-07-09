@@ -373,6 +373,8 @@ resource "aws_lb_target_group" "tg" {
     unhealthy_threshold = 2
   }
 
+  target_type = "ip"
+
   tags = {
     Name = "my-tg"
   }
