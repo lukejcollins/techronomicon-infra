@@ -235,6 +235,7 @@ resource "aws_security_group" "instance_sg" {
   tags = {
     Name = "instance_sg"
   }
+}
 
 # EC2 instance
 resource "aws_instance" "example" {
