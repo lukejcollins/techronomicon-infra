@@ -164,6 +164,25 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
+resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
+  name   = "ecs_task_execution_role_policy"
+  role   = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Action    = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource  = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_policy" "parameter_store_access" {
   name        = "parameter_store_access"
   description = "Policy to allow ECS tasks to access specific parameters in Parameter Store"
