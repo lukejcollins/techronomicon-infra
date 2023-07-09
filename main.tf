@@ -203,6 +203,8 @@ resource "aws_instance" "example" {
   ami           = "ami-0fb2f0b847d44d4f0"
   instance_type = "t2.micro"
 
+  subnet_id = aws_subnet.my_public_subnet1.id
+
   key_name = "techronomicon-ssh"
   user_data = <<-EOF
     #!/bin/bash
