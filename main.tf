@@ -385,6 +385,10 @@ resource "aws_ecs_cluster" "cluster" {
   name = "techronomicon-cluster"
 }
 
+resource "aws_cloudwatch_log_group" "example" {
+  name = "techronomicon"
+}
+
 # ECS Task Definition
 resource "aws_ecs_task_definition" "task" {
   family                   = "techronomicon-family"
@@ -407,6 +411,14 @@ resource "aws_ecs_task_definition" "task" {
           "containerPort": 8000,
           "hostPort": 8000
         }
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+              "awslogs-group" : "${aws_cloudwatch_log_group.example.name}",
+              "awslogs-region" : "eu-west-1",
+              "awslogs-stream-prefix": "ecs"
+          }
+      }
       ]
     }
   ]
