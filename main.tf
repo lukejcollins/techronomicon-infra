@@ -378,3 +378,15 @@ resource "aws_ecs_service" "service" {
   desired_count   = 1
   launch_type     = "EC2"
 }
+
+resource "aws_route53_zone" "my_domain" {
+  name = "lukecollins.dev"
+}
+
+resource "aws_route53_record" "my_domain_a" {
+  zone_id = aws_route53_zone.my_domain.zone_id
+  name    = "lukecollins.dev"
+  type    = "A"
+  ttl     = 300
+  records = ["34.244.180.26"]
+}
