@@ -193,7 +193,11 @@ resource "aws_iam_policy" "parameter_store_access" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "ssm:GetParametersByPath",
+      "Action": [
+        "ssm:GetParametersByPath",
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
       "Resource": [
         "arn:aws:ssm:eu-west-1:293567020262:parameter/DJANGO_SECRET_KEY",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_ACCESS_KEY_ID",
@@ -201,8 +205,7 @@ resource "aws_iam_policy" "parameter_store_access" {
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_HOST",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_PASSWORD",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_USERNAME",
- 
- "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
+        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME"
       ]
     }
