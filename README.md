@@ -1,37 +1,46 @@
-# Techronomicon Infrastructure Guide 🏰🔧
+# 🧙‍♂️ The Enchanting Techronomicon Infrastructure with Terraform 🏰
 
-Greetings, mystic practitioner! This guide holds the ancient runes and sigils required to conjure the mighty Techronomicon infrastructure in the clouded realms of AWS. We shall harness the art of Terraform and the alchemy of GitHub Actions to breathe life into our creation.
+Welcome, intrepid explorer! Are you ready to journey through the mystical realm of AWS using the ancient arts of Terraform? This magical codex can summon a kingdom of services for the illustrious Techronomicon.
 
-## The Infrastructure Scrolls 📜
+## 📜 Codex Overview 
 
-Our infrastructure is an arcane construct, woven together through the art of Terraform. Through these incantations, we will summon:
+Peek into this mystical codex to reveal:
 
-- **ECS**: The Eldritch Container Service, where the Techronomicon Docker apparition shall reside.
-- **RDS**: The Relic Database Service, a magical trove where the secrets of our scrolls will be safeguarded.
-- **VPC**: A Virtually Protected Cauldron, a bounded space in which our artifacts shall intermingle safely.
-- **Other mystic components**: As our journey unfolds, additional artifacts and incantations will be bound within our construct.
+- The grand realm of `my_vpc`, sprawling across the `10.0.0.0/16` magic quadrant.
+- Two bustling public hamlets: `my_public_subnet1` and `my_public_subnet2`.
+- An eldritch portal `my_igw` connecting our realm to the world beyond (The Internet).
+- The `my_route_table`, a map guiding wanderers across our townships.
+- An arcane chest of knowledge, an RDS PostgreSQL database `db`.
+- An ECS IAM role `ecs_task_execution_role`, a trusted attendant to our ECS tasks.
+- A cloud stronghold, the `techronomicon-instance`.
+- A battalion of the bravest cloud warriors, gathered in the `techronomicon-cluster`.
+- The `techronomicon` CloudWatch Log Group, ever-watchful of the realm's affairs.
+- A rallying call in the form of an ECS task definition `task` and an ECS service `service`.
+- A Route 53 hosted zone for `lukecollins.dev`, complete with an `A` record, our banner on the map of the cloud.
 
-## Terraform Incantations 🧙‍♂️
+Our kingdom resides in the `eu-west-1` realm, and its tale is recorded in an S3 bucket, where time stands still.
 
-Summon the constructs through the dark art of Terraform.
+## 🧝‍♀️ Prepare for Your Adventure
 
-```sh
-# Initiate Terraform's magical energies
-terraform init
+To decipher and command this Terraform codex, you'll need the power of Terraform installed on your arcane slab (computer). You must also be recognized by the AWS realm with your credentials at hand.
 
-# Conjure a vision of what is to be created
-terraform plan
-```
+Please be sure to conjure the following arcane symbols (environment variables):
 
-## GitHub Actions Ritual 🌀
+## 🧙‍♂️ Terraform Incantations
 
-In this part of the arcane ritual, we employ the spirits of GitHub Actions to continuously transport our latest incantations into the cloud realm. With every sacred push to our repository, the spirits will carry our work into the ether.
+The runes inscribed here can create, change or destroy your cloud kingdom at will. 
 
+- `terraform init`: Awaken the Terraform spirits in your local chamber.
+- `terraform plan`: Peer into the potential future of your kingdom.
+- `terraform apply`: Let your will be done and shape your cloud realm.
+- `terraform destroy`: Unmake your creations, returning the cloud to its primal state.
 
-## Heed These Words! ⚠️
+## 🕯️ GitHub Actions Ritual
 
-This is but the beginning of a grand ritual, and as such, many things may change as we travel deeper into the mystic. Engage in the dark arts with caution and always be ready to adapt your incantations as required.
+With the aid of the GitHub Actions spirits, your spells can be chanted automatically when your magical tome (the code) is altered. Keep a watchful eye on the actions tab in your GitHub repository for the results of the ritual.
 
-In clouds and stars,
-Techronomicon Infrastructure Guild 🧙‍♂️🔧
+## 📣 Heed These Words
 
+Practice the art of safe spellcasting. Never wield Terraform lightly, for its powers are great and can bring both creation and ruin. To avoid unsanctioned changes, make use of the `terraform plan` incantation to foresee the consequences of your spells.
+
+Be brave, be bold, and enjoy your mystical journey through the realm of Terraform!
