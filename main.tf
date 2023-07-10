@@ -164,6 +164,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
+# This block creates an inline IAM role policy named "ecs_task_execution_role_policy" for the role specified
 resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
   name   = "ecs_task_execution_role_policy"
   role   = aws_iam_role.ecs_task_execution_role.id
@@ -183,6 +184,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
   })
 }
 
+# This block creates a managed IAM policy called "parameter_store_access"
 resource "aws_iam_policy" "parameter_store_access" {
   name        = "parameter_store_access"
   description = "Policy to allow ECS tasks to access specific parameters in Parameter Store"
@@ -288,6 +290,7 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+# Create an IAM role policy attachment for the ECS EC2 instance to access the SSM Parameter Store
 resource "aws_iam_role_policy_attachment" "ecs_ec2_ssm_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = aws_iam_policy.parameter_store_access.arn
@@ -330,6 +333,7 @@ resource "aws_ecs_cluster" "cluster" {
   name = "techronomicon-cluster"
 }
 
+# Create an AWS CloudWatch Log Group named "techronomicon"
 resource "aws_cloudwatch_log_group" "example" {
   name = "techronomicon"
 }
@@ -379,10 +383,12 @@ resource "aws_ecs_service" "service" {
   launch_type     = "EC2"
 }
 
+# Create an AWS Route 53 Zone for the domain "lukecollins.dev"
 resource "aws_route53_zone" "my_domain" {
   name = "lukecollins.dev"
 }
 
+# Create a Route 53 record for the domain "lukecollins.dev"
 resource "aws_route53_record" "my_domain_a" {
   zone_id = aws_route53_zone.my_domain.zone_id
   name    = "lukecollins.dev"
