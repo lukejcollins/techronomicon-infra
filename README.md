@@ -1,3 +1,5 @@
+[![Terraform](https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-623CE4?logo=terraform&logoColor=white&labelColor=623CE4&color=white&labelWidth=20&labelHeight=20)](https://www.terraform.io/) [![AWS](https://img.shields.io/badge/AWS-Amazon%20Web%20Services-232F3E?logo=amazon-aws&logoColor=white&labelColor=232F3E&color=orange&labelWidth=20&labelHeight=20)](https://aws.amazon.com/) ![Terraform](https://github.com/lukejcollins/techronomicon-infra/actions/workflows/terraform.yml/badge.svg)
+
 # 🧙‍♂️ The Enchanting Techronomicon Infrastructure with Terraform 🏰
 
 Welcome, intrepid explorer! Are you ready to journey through the mystical realm of AWS using the ancient arts of Terraform? This magical codex can summon a kingdom of services for the illustrious Techronomicon.
