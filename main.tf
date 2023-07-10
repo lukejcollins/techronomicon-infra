@@ -100,7 +100,7 @@ resource "aws_security_group" "sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.3.26/32"]
   }
 
   # Outbound rule: allows all outbound traffic
@@ -140,7 +140,7 @@ resource "aws_db_instance" "db" {
   apply_immediately     = true
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
 
-  publicly_accessible   = true
+  publicly_accessible   = false
 }
 
 # IAM Role for ECS Task
@@ -232,35 +232,28 @@ resource "aws_security_group" "instance_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+    cidr_blocks = ["82.46.59.172/32"]
   }
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
-  }
-
-  ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]  // Allow all outbound traffic
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -289,13 +282,6 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
-
-# Create an IAM role policy attachment for the ECS EC2 instance to access the SSM Parameter Store
-resource "aws_iam_role_policy_attachment" "ecs_ec2_ssm_policy_attachment" {
-  role       = aws_iam_role.ecs_role.name
-  policy_arn = aws_iam_policy.parameter_store_access.arn
-}
-
 
 # Create IAM instance profile
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
