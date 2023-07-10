@@ -164,6 +164,25 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
+resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
+  name   = "ecs_task_execution_role_policy"
+  role   = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Action    = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource  = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_policy" "parameter_store_access" {
   name        = "parameter_store_access"
   description = "Policy to allow ECS tasks to access specific parameters in Parameter Store"
@@ -174,7 +193,11 @@ resource "aws_iam_policy" "parameter_store_access" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "ssm:GetParameter",
+      "Action": [
+        "ssm:GetParametersByPath",
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
       "Resource": [
         "arn:aws:ssm:eu-west-1:293567020262:parameter/DJANGO_SECRET_KEY",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_ACCESS_KEY_ID",
@@ -182,8 +205,7 @@ resource "aws_iam_policy" "parameter_store_access" {
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_HOST",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_PASSWORD",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_USERNAME",
- 
- "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
+        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME"
       ]
     }
@@ -225,6 +247,13 @@ resource "aws_security_group" "instance_sg" {
     cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
   }
 
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Accessible from anywhere; consider restricting it
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -258,6 +287,12 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
+
+resource "aws_iam_role_policy_attachment" "ecs_ec2_ssm_policy_attachment" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.parameter_store_access.arn
+}
+
 
 # Create IAM instance profile
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
@@ -295,10 +330,14 @@ resource "aws_ecs_cluster" "cluster" {
   name = "techronomicon-cluster"
 }
 
+resource "aws_cloudwatch_log_group" "example" {
+  name = "techronomicon"
+}
+
 # ECS Task Definition
 resource "aws_ecs_task_definition" "task" {
   family                   = "techronomicon-family"
-  network_mode             = "awsvpc"
+  network_mode             = "host"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   cpu                      = "256"
@@ -317,7 +356,15 @@ resource "aws_ecs_task_definition" "task" {
           "containerPort": 8000,
           "hostPort": 8000
         }
-      ]
+      ],
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+              "awslogs-group" : "${aws_cloudwatch_log_group.example.name}",
+              "awslogs-region" : "eu-west-1",
+              "awslogs-stream-prefix": "ecs"
+          }
+      }
     }
   ]
   DEFINITION
@@ -330,8 +377,4 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.task.arn
   desired_count   = 1
   launch_type     = "EC2"
-
-  network_configuration {
-    subnets = [aws_subnet.my_public_subnet1.id, aws_subnet.my_public_subnet2.id]
-  }
 }
