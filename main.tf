@@ -278,6 +278,12 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_ec2_ssm_policy_attachment" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.parameter_store_access.arn
+}
+
+
 # Create IAM instance profile
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "ecs_instance_profile"
