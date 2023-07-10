@@ -193,11 +193,7 @@ resource "aws_iam_policy" "parameter_store_access" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Actions": [
-        "ssm:GetParametersByPath",
-        "ssm:GetParameters",
-        "ssm:GetParameter"
-      ],
+      "Action": "ssm:GetParametersByPath",
       "Resource": [
         "arn:aws:ssm:eu-west-1:293567020262:parameter/DJANGO_SECRET_KEY",
         "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_ACCESS_KEY_ID",
