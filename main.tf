@@ -247,8 +247,8 @@ EOF
 }
 
 # Attach the IAM policy to the role
-resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+resource "aws_iam_role_policy_attachment" "ecs_role_parameter_store_access" {
+  role       = aws_iam_role.ecs_role.name
   policy_arn = aws_iam_policy.parameter_store_access.arn
 }
 
