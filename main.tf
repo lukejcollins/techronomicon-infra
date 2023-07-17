@@ -147,7 +147,7 @@ resource "aws_db_instance" "db" {
 variable "TECHRONOMICON_ACCESS_KEY_ID" {}
 variable "TECHRONOMICON_SECRET_ACCESS_KEY" {}
 variable "TECHRONOMICON_STORAGE_BUCKET_NAME" {}
-variable "DJANGO_ACCESS_KEY" {}
+variable "DJANGO_SECRET_KEY" {}
 variable "TECHRONOMICON_RDS_DB_NAME" {}
 
 # Define variables for SSM
@@ -158,7 +158,7 @@ locals {
     TECHRONOMICON_RDS_USERNAME      = var.DB_USERNAME
     TECHRONOMICON_RDS_PASSWORD      = var.DB_PASSWORD
     TECHRONOMICON_STORAGE_BUCKET_NAME = var.TECHRONOMICON_STORAGE_BUCKET_NAME
-    DJANGO_ACCESS_KEY               = var.DJANGO_ACCESS_KEY
+    DJANGO_SECRET_KEY               = var.DJANGO_SECRET_KEY
     TECHRONOMICON_RDS_DB_NAME       = var.TECHRONOMICON_RDS_DB_NAME
     TECHRONOMICON_RDS_HOST          = aws_db_instance.db.endpoint
   }
@@ -355,7 +355,7 @@ resource "aws_ssm_parameter" "public_ip" {
 
 # Create an s3 bucket for the application static
 resource "aws_s3_bucket" "techronomicon" {
-  bucket = "techronomicon"
+  bucket = var.TECHRONOMICON_STORAGE_BUCKET_NAME
 }
 
 resource "aws_s3_bucket_cors_configuration" "techronomicon_cors" {
@@ -381,7 +381,7 @@ resource "aws_s3_bucket_policy" "techronomicon_policy" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::techronomicon/*"
+      "Resource": "arn:aws:s3:::techronomicon_static/*"
     }
   ]
 }
@@ -461,5 +461,5 @@ resource "aws_route53_record" "my_domain_a" {
   name    = "lukecollins.dev"
   type    = "A"
   ttl     = 300
-  records = ["aws_instance.example.public_ip"]
+  records = [aws_instance.example.public_ip]
 }
