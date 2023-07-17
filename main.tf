@@ -338,7 +338,7 @@ resource "aws_instance" "example" {
     echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
     dnf install ecs-init nginx python3-pip -y
     systemctl enable --now --no-block ecs.service
-    pip3 install --yes certbot
+    pip3 install certbot certbot-nginx
   EOF
 
   tags = {
@@ -382,7 +382,7 @@ resource "aws_s3_bucket_policy" "techronomicon_policy" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::techronomicon-static/*"
+      "Resource": "arn:aws:s3:::techronomiconstatic/*"
     }
   ]
 }
