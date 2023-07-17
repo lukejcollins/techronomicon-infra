@@ -238,7 +238,8 @@ resource "aws_iam_policy" "parameter_store_access" {
         "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_PASSWORD",
         "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_USERNAME",
         "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME"
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME",
+	"arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_IP"
       ]
     }
   ]
