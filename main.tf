@@ -345,6 +345,56 @@ resource "aws_instance" "example" {
   }
 }
 
+# Store EC2 IP in Parameter Store
+resource "aws_ssm_parameter" "public_ip" {
+  name        = "/TECHRONOMICON_IP"
+  description = "Public IP of the EC2 instance"
+  type        = "String"
+  value       = aws_instance.example.public_ip
+}
+
+# Create an s3 bucket for the application static
+resource "aws_s3_bucket" "techronomicon" {
+  bucket = "techronomicon"
+}
+
+resource "aws_s3_bucket_cors_configuration" "techronomicon_cors" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+    max_age_seconds = 3000
+  }
+}
+
+resource "aws_s3_bucket_policy" "techronomicon_policy" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::techronomicon/*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_public_access_block" "techronomicon" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  block_public_acls   = false
+  block_public_policy = false
+}
+
 # ECS Cluster
 resource "aws_ecs_cluster" "cluster" {
   name = "techronomicon-cluster"
@@ -412,35 +462,4 @@ resource "aws_route53_record" "my_domain_a" {
   type    = "A"
   ttl     = 300
   records = ["aws_instance.example.public_ip"]
-}
-
-# Create an s3 bucket for the application static
-resource "aws_s3_bucket" "techronomicon" {
-  bucket = "techronomicon"
-}
-
-resource "aws_s3_bucket_policy" "techronomicon_policy" {
-  bucket = aws_s3_bucket.techronomicon.id
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::techronomicon/*"
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_s3_bucket_public_access_block" "techronomicon" {
-  bucket = aws_s3_bucket.techronomicon.id
-
-  block_public_acls   = false
-  block_public_policy = false
 }
