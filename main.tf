@@ -6,7 +6,7 @@ provider "aws" {
 # Set up state file in S3 bucket
 terraform {
   backend "s3" {
-    bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxc"
+    bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxd"
     key    = "dev/techronomicon/terraform.tfstate"
     region = "eu-west-1"
   }
@@ -100,7 +100,7 @@ resource "aws_security_group" "sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.3.26/32"]
+    cidr_blocks = ["10.0.3.0/24"]
   }
 
   # Outbound rule: allows all outbound traffic
@@ -141,6 +141,36 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
 
   publicly_accessible   = false
+}
+
+# Variables for SSM
+variable "TECHRONOMICON_ACCESS_KEY_ID" {}
+variable "TECHRONOMICON_SECRET_ACCESS_KEY" {}
+variable "TECHRONOMICON_STORAGE_BUCKET_NAME" {}
+variable "DJANGO_SECRET_KEY" {}
+variable "TECHRONOMICON_RDS_DB_NAME" {}
+
+# Define variables for SSM
+locals {
+  techronomicon_parameters = {
+    TECHRONOMICON_ACCESS_KEY_ID     = var.TECHRONOMICON_ACCESS_KEY_ID
+    TECHRONOMICON_SECRET_ACCESS_KEY = var.TECHRONOMICON_SECRET_ACCESS_KEY
+    TECHRONOMICON_RDS_USERNAME      = var.DB_USERNAME
+    TECHRONOMICON_RDS_PASSWORD      = var.DB_PASSWORD
+    TECHRONOMICON_STORAGE_BUCKET_NAME = var.TECHRONOMICON_STORAGE_BUCKET_NAME
+    DJANGO_SECRET_KEY               = var.DJANGO_SECRET_KEY
+    TECHRONOMICON_RDS_DB_NAME       = var.TECHRONOMICON_RDS_DB_NAME
+    TECHRONOMICON_RDS_HOST          = aws_db_instance.db.address
+  }
+}
+
+# Create parameters in SSM
+resource "aws_ssm_parameter" "techronomicon_parameters" {
+  for_each = local.techronomicon_parameters
+
+  name  = "/${each.key}"
+  type  = "String"
+  value = each.value
 }
 
 # IAM Role for ECS Task
@@ -201,14 +231,15 @@ resource "aws_iam_policy" "parameter_store_access" {
         "ssm:GetParameter"
       ],
       "Resource": [
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/DJANGO_SECRET_KEY",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_ACCESS_KEY_ID",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_DB_NAME",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_HOST",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_PASSWORD",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_RDS_USERNAME",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
-        "arn:aws:ssm:eu-west-1:293567020262:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME"
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/DJANGO_SECRET_KEY",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_ACCESS_KEY_ID",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_DB_NAME",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_HOST",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_PASSWORD",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_USERNAME",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
+        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME",
+	"arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_IP"
       ]
     }
   ]
@@ -217,8 +248,8 @@ EOF
 }
 
 # Attach the IAM policy to the role
-resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+resource "aws_iam_role_policy_attachment" "ecs_role_parameter_store_access" {
+  role       = aws_iam_role.ecs_role.name
   policy_arn = aws_iam_policy.parameter_store_access.arn
 }
 
@@ -305,13 +336,64 @@ resource "aws_instance" "example" {
     #!/bin/bash
     mkdir -p /etc/ecs
     echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
-    dnf install ecs-init -y
+    dnf install ecs-init nginx python3-pip -y
     systemctl enable --now --no-block ecs.service
+    pip3 install certbot certbot-nginx
   EOF
 
   tags = {
     Name = "techronomicon-instance"
   }
+}
+
+# Store EC2 IP in Parameter Store
+resource "aws_ssm_parameter" "public_ip" {
+  name        = "/TECHRONOMICON_IP"
+  description = "Public IP of the EC2 instance"
+  type        = "String"
+  value       = aws_instance.example.public_ip
+}
+
+# Create an s3 bucket for the application static
+resource "aws_s3_bucket" "techronomicon" {
+  bucket = var.TECHRONOMICON_STORAGE_BUCKET_NAME
+}
+
+resource "aws_s3_bucket_cors_configuration" "techronomicon_cors" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+    max_age_seconds = 3000
+  }
+}
+
+resource "aws_s3_bucket_policy" "techronomicon_policy" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::techronomiconstatic/*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_public_access_block" "techronomicon" {
+  bucket = aws_s3_bucket.techronomicon.id
+
+  block_public_acls   = false
+  block_public_policy = false
 }
 
 # ECS Cluster
@@ -380,5 +462,5 @@ resource "aws_route53_record" "my_domain_a" {
   name    = "lukecollins.dev"
   type    = "A"
   ttl     = 300
-  records = ["34.244.180.26"]
+  records = [aws_instance.example.public_ip]
 }
