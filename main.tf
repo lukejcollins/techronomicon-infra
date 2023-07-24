@@ -1,15 +1,3 @@
-# Provider configuration for AWS in the "eu-west-1" region
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.9.0"
-    }
-  }
-
-    required_version = ">= 0.14.0"
-}
-
 # Set up state file in S3 bucket
 terraform {
   backend "s3" {
