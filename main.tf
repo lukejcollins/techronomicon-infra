@@ -273,7 +273,7 @@ resource "aws_iam_policy" "parameter_store_access" {
         "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_RDS_USERNAME",
         "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
         "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME",
-	      "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_IP"
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_IP"
       ]
     }
   ]
