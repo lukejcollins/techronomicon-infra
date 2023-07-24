@@ -354,12 +354,6 @@ resource "aws_ssm_parameter" "public_ip" {
   value       = aws_instance.example.public_ip
 }
 
-# Store EC2 IP in an output
-output "example_public_ip" {
-  value = aws_instance.example.public_ip
-  description = "Public IP of the example instance"
-}
-
 # Create an s3 bucket for the application static
 resource "aws_s3_bucket" "techronomicon" {
   bucket = var.TECHRONOMICON_STORAGE_BUCKET_NAME
@@ -455,18 +449,4 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.task.arn
   desired_count   = 1
   launch_type     = "EC2"
-}
-
-# Create an AWS Route 53 Zone for the domain "lukecollins.dev"
-resource "aws_route53_zone" "my_domain" {
-  name = "lukecollins.dev"
-}
-
-# Create a Route 53 record for the domain "lukecollins.dev"
-resource "aws_route53_record" "my_domain_a" {
-  zone_id = aws_route53_zone.my_domain.zone_id
-  name    = "lukecollins.dev"
-  type    = "A"
-  ttl     = 300
-  records = [aws_instance.example.public_ip]
 }
