@@ -1,5 +1,3 @@
-# Set up state file in S3 bucket
-
 # Provider configuration for AWS in the "eu-west-1" region
 provider "aws" {
   region = "eu-west-1"
@@ -95,16 +93,6 @@ resource "aws_route_table_association" "b" {
   route_table_id = aws_route_table.custom.id # The ID of the custom route table
 }
 
-
-# Variables for your database username and password
-variable "DB_USERNAME" {
-  type = string
-}
-
-variable "DB_PASSWORD" {
-  type = string
-}
-
 # A security group for your RDS instance
 resource "aws_security_group" "sg" {
   name        = "postgres"
@@ -157,27 +145,6 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
 
   publicly_accessible   = false
-}
-
-# Variables for SSM
-variable "TECHRONOMICON_ACCESS_KEY_ID" {
-  type = string
-}
-
-variable "TECHRONOMICON_SECRET_ACCESS_KEY" {
-  type = string
-}
-
-variable "TECHRONOMICON_STORAGE_BUCKET_NAME" {
-  type = string
-}
-
-variable "DJANGO_SECRET_KEY" {
-  type = string
-}
-
-variable "TECHRONOMICON_RDS_DB_NAME" {
-  type = string
 }
 
 # Define variables for SSM
