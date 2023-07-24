@@ -354,6 +354,12 @@ resource "aws_ssm_parameter" "public_ip" {
   value       = aws_instance.example.public_ip
 }
 
+# Store EC2 IP in an output
+output "example_public_ip" {
+  value = aws_instance.example.public_ip
+  description = "Public IP of the example instance"
+}
+
 # Create an s3 bucket for the application static
 resource "aws_s3_bucket" "techronomicon" {
   bucket = var.TECHRONOMICON_STORAGE_BUCKET_NAME
