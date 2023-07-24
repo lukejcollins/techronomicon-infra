@@ -10,15 +10,10 @@ terraform {
     required_version = ">= 0.14.0"
 }
 
-# Variables for state bucket name
-variable "TERRAFORM_STATE_BUCKET_NAME" {
-  type = string
-}
-
 # Set up state file in S3 bucket
 terraform {
   backend "s3" {
-    bucket = var.TERRAFORM_STATE_BUCKET_NAME
+    bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxd"
     key    = "dev/techronomicon/terraform.tfstate"
     region = "eu-west-1"
   }
