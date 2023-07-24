@@ -1,15 +1,26 @@
+# Set up state file in S3 bucket
+
 # Provider configuration for AWS in the "eu-west-1" region
 provider "aws" {
   region = "eu-west-1"
 }
 
-# Set up state file in S3 bucket
+# Declare Terraform config
 terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.9.0"
+    }
+  }
+
   backend "s3" {
     bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxd"
     key    = "dev/techronomicon/terraform.tfstate"
     region = "eu-west-1"
   }
+
+  required_version = ">= 0.14.0"
 }
 
 # Definition of an AWS VPC resource
@@ -86,8 +97,13 @@ resource "aws_route_table_association" "b" {
 
 
 # Variables for your database username and password
-variable "DB_USERNAME" {}
-variable "DB_PASSWORD" {}
+variable "DB_USERNAME" {
+  type = string
+}
+
+variable "DB_PASSWORD" {
+  type = string
+}
 
 # A security group for your RDS instance
 resource "aws_security_group" "sg" {
@@ -144,11 +160,25 @@ resource "aws_db_instance" "db" {
 }
 
 # Variables for SSM
-variable "TECHRONOMICON_ACCESS_KEY_ID" {}
-variable "TECHRONOMICON_SECRET_ACCESS_KEY" {}
-variable "TECHRONOMICON_STORAGE_BUCKET_NAME" {}
-variable "DJANGO_SECRET_KEY" {}
-variable "TECHRONOMICON_RDS_DB_NAME" {}
+variable "TECHRONOMICON_ACCESS_KEY_ID" {
+  type = string
+}
+
+variable "TECHRONOMICON_SECRET_ACCESS_KEY" {
+  type = string
+}
+
+variable "TECHRONOMICON_STORAGE_BUCKET_NAME" {
+  type = string
+}
+
+variable "DJANGO_SECRET_KEY" {
+  type = string
+}
+
+variable "TECHRONOMICON_RDS_DB_NAME" {
+  type = string
+}
 
 # Define variables for SSM
 locals {
@@ -214,6 +244,9 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
   })
 }
 
+# This block fetches information about the AWS account, including the account ID
+data "aws_caller_identity" "current" {}
+
 # This block creates a managed IAM policy called "parameter_store_access"
 resource "aws_iam_policy" "parameter_store_access" {
   name        = "parameter_store_access"
@@ -231,15 +264,15 @@ resource "aws_iam_policy" "parameter_store_access" {
         "ssm:GetParameter"
       ],
       "Resource": [
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/DJANGO_SECRET_KEY",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_ACCESS_KEY_ID",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_DB_NAME",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_HOST",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_PASSWORD",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_RDS_USERNAME",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
-        "arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME",
-	"arn:aws:ssm:eu-west-1:777431414664:parameter/TECHRONOMICON_IP"
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/DJANGO_SECRET_KEY",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_ACCESS_KEY_ID",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_RDS_DB_NAME",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_RDS_HOST",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_RDS_PASSWORD",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_RDS_USERNAME",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_SECRET_ACCESS_KEY",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_STORAGE_BUCKET_NAME",
+        "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/TECHRONOMICON_IP"
       ]
     }
   ]
@@ -263,7 +296,7 @@ resource "aws_security_group" "instance_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["82.40.44.205/32"]
+    cidr_blocks = ["82.40.44.205/32", "137.221.132.176/28", "137.221.132.192/28", "81.145.53.16/29", "81.145.54.184/29"]
   }
 
   ingress {
@@ -382,7 +415,7 @@ resource "aws_s3_bucket_policy" "techronomicon_policy" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::techronomiconstatic/*"
+      "Resource": "arn:aws:s3:::${var.TECHRONOMICON_STORAGE_BUCKET_NAME}/*"
     }
   ]
 }
