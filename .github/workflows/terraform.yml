@@ -2,8 +2,6 @@ name: 'Terraform Prod GitHub Actions'
 
 on:
   pull_request:
-    paths:
-      - '**.tf'
 
 jobs:
   terraform:
