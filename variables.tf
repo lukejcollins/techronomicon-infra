@@ -31,3 +31,7 @@ variable "TECHRONOMICON_RDS_DB_NAME" {
 variable "STATE_BUCKET_NAME" {
   type = string
 }
+
+variable "DOMAIN_NAME" {
+  type = string
+}

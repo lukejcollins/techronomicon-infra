@@ -38,6 +38,7 @@ jobs:
         TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
         TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
         TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+        TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
@@ -52,3 +53,4 @@ jobs:
         TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
         TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
         TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+        TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
