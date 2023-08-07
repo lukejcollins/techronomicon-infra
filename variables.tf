@@ -34,6 +34,7 @@ variable "STATE_BUCKET_NAME" {
 
 variable "DOMAIN_NAME" {
   type = string
+  default = ""
 }
 
 variable "ROUTE_53_RESOURCES_BOOL" {
