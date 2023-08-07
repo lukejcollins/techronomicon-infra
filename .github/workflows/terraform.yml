@@ -1,13 +1,12 @@
-name: 'Terraform GitHub Actions'
+name: 'Terraform Prod Label GitHub Actions'
 
 on:
   pull_request:
-    paths:
-      - '**.tf'
 
 jobs:
   terraform:
     name: 'Terraform'
+    if: contains(github.event.pull_request.labels.*.name, 'prod')
     runs-on: ubuntu-latest
 
     steps:
