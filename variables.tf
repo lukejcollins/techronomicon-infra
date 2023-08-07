@@ -35,3 +35,7 @@ variable "STATE_BUCKET_NAME" {
 variable "DOMAIN_NAME" {
   type = string
 }
+
+variable "ROUTE_53_RESOURCES_BOOL" {
+  type = bool
+}
