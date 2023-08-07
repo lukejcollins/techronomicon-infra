@@ -1,4 +1,4 @@
-name: 'Terraform Prod Label GitHub Actions'
+name: 'Terraform Prod Deployment'
 
 on:
   pull_request:
