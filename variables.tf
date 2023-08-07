@@ -27,3 +27,7 @@ variable "DJANGO_SECRET_KEY" {
 variable "TECHRONOMICON_RDS_DB_NAME" {
   type = string
 }
+
+variable "STATE_BUCKET_NAME" {
+  type = string
+}

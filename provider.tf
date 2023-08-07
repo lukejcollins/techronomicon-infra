@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "vtksrz06s3d0kam8w1ki86osghfzfvxd"
+    bucket = var.STATE_BUCKET_NAME
     key    = "dev/techronomicon/terraform.tfstate"
     region = "eu-west-1"
   }
