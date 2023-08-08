@@ -72,8 +72,7 @@ jobs:
     - name: Extract Key ID and Public Key
       run: |
         KEY_ID=$(grep '"key_id":' key_response.txt | cut -d ':' -f 2 | sed 's/"//g' | tr -d '[:space:]')
-        PUBLIC_KEY=$(cat key_response.txt | grep "\"key\":" | awk -F::wq
-        '{print $2}' | awk -F\" '{print $2}')
+        PUBLIC_KEY=$(grep '"key":' key_response.txt | cut -d ':' -f 2 | sed 's/"//g' | tr -d '[:space:]')
         echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
         echo "PUBLIC_KEY=$PUBLIC_KEY" >> $GITHUB_ENV
 
