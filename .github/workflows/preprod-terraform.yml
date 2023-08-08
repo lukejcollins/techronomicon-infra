@@ -78,7 +78,7 @@ jobs:
 
     - name: Encrypt and Set Secret
       run: |
-        echo -n "$PUBLIC_KEY" > public_key.pem
+        echo -n "$PUBLIC_KEY" | base64 --decode > public_key.pem
         ENCRYPTED_VALUE=$(echo -n "${{ steps.preprod_ip.outputs.ip_address }}" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem | base64)
         rm public_key.pem
         PAYLOAD="{\"encrypted_value\":\"$ENCRYPTED_VALUE\",\"key_id\":\"$KEY_ID\"}"
