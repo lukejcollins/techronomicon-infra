@@ -67,14 +67,18 @@ jobs:
         KEY_RESPONSE=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                              -H "Accept: application/vnd.github.v3+json" \
                              https://api.github.com/repos/${{ github.repository }}/actions/secrets/public-key)
-        KEY_ID=$(echo "$KEY_RESPONSE" | jq -r .key_id)
-        PUBLIC_KEY=$(echo "$KEY_RESPONSE" | jq -r .key)
+        echo "KEY_RESPONSE=$KEY_RESPONSE" >> $GITHUB_ENV
+
+    - name: Extract Key ID and Public Key
+      run: |
+        KEY_ID=$(echo "$KEY_RESPONSE" | grep "\"key_id\":" | awk -F: '{print $2}' | awk -F\" '{print $2}')
+        PUBLIC_KEY=$(echo "$KEY_RESPONSE" | grep "\"key\":" | awk -F: '{print $2}' | awk -F\" '{print $2}')
         echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
         echo "PUBLIC_KEY=$PUBLIC_KEY" >> $GITHUB_ENV
 
     - name: Encrypt and Set Secret
       run: |
-        ENCRYPTED_VALUE=$(echo -n "$PREPROD_IP_ADDRESS" | openssl pkeyutl -encrypt -pubin -inkey <(echo $PUBLIC_KEY) | base64)
+        ENCRYPTED_VALUE=$(echo -n "${{ steps.preprod_ip.outputs.ip_address }}" | openssl pkeyutl -encrypt -pubin -inkey <(echo $PUBLIC_KEY) | base64)
         PAYLOAD="{\"encrypted_value\":\"$ENCRYPTED_VALUE\",\"key_id\":\"$KEY_ID\"}"
         curl -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -X PUT -H "Content-Type: application/json" \
              -d "$PAYLOAD" "https://api.github.com/repos/${{ github.repository }}/actions/secrets/PREPROD_IP_ADDRESS"
