@@ -9,7 +9,7 @@ resource "aws_security_group" "sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.3.0/24"]
+    cidr_blocks = ["10.0.3.0/24", "82.40.44.205/32", "137.221.132.176/28", "137.221.132.192/28", "81.145.53.16/29", "81.145.54.184/29"]
   }
 
   # Outbound rule: allows all outbound traffic
