@@ -55,11 +55,12 @@ jobs:
         TF_VAR_STATE_BUCKET_NAME: ${{ secrets.PREPROD_STATE_BUCKET_NAME }}
         TF_VAR_ROUTE_53_RESOURCES_BOOL: ${{ secrets.PREPROD_ROUTE_53_RESOURCES_BOOL }}
 
-    - name: Debug and Get Preprod IP Address
-      run: |
-        IP_ADDRESS=$(terraform output -raw instance_ip_address)
-        echo "PREPROD_IP_ADDRESS=$IP_ADDRESS" >> $GITHUB_ENV
-        echo "Debug: IP_ADDRESS=$IP_ADDRESS"
+    - name: Get Preprod IP Address
+      id: preprod_ip
+      run: echo "PREPROD_IP_ADDRESS=$(terraform output preprod_ip_address)" >> $GITHUB_ENV
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
 
     - name: Get Public Key
       run: |
