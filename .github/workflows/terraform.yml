@@ -40,6 +40,7 @@ jobs:
         TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
         TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
         TF_VAR_ROUTE_53_RESOURCES_BOOL: ${{ secrets.ROUTE_53_RESOURCES_BOOL }}
+        TF_VAR_PREPROD_IP_ADDRESS: ${{ secrets.PREPROD_IP_ADDRESS }}
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
@@ -56,4 +57,4 @@ jobs:
         TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
         TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
         TF_VAR_ROUTE_53_RESOURCES_BOOL: ${{ secrets.ROUTE_53_RESOURCES_BOOL }}
-
+        TF_VAR_PREPROD_IP_ADDRESS: ${{ secrets.PREPROD_IP_ADDRESS }}

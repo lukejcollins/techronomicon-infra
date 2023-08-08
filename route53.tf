@@ -13,3 +13,13 @@ resource "aws_route53_record" "my_domain_a" {
   ttl     = 300
   records = [aws_instance.example.public_ip]
 }
+
+# Create a Route 53 record for the subdomain "preprod.lukecollins.dev"
+resource "aws_route53_record" "preprod_subdomain_a" {
+  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
+  zone_id = aws_route53_zone.my_domain[0].zone_id
+  name    = "preprod.${var.DOMAIN_NAME}"
+  type    = "A"
+  ttl     = 300
+  records = [var.PREPROD_IP_ADDRESS]
+}

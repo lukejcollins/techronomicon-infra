@@ -40,3 +40,8 @@ variable "DOMAIN_NAME" {
 variable "ROUTE_53_RESOURCES_BOOL" {
   type = bool
 }
+
+variable "PREPROD_IP_ADDRESS" {
+  type = string
+  default = ""
+}
