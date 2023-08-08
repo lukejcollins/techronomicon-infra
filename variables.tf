@@ -31,3 +31,12 @@ variable "TECHRONOMICON_RDS_DB_NAME" {
 variable "STATE_BUCKET_NAME" {
   type = string
 }
+
+variable "DOMAIN_NAME" {
+  type = string
+  default = ""
+}
+
+variable "ROUTE_53_RESOURCES_BOOL" {
+  type = bool
+}
