@@ -80,15 +80,28 @@ jobs:
       run: |
         echo "Public Key Base64 Encoded: $PUBLIC_KEY"
         echo -n "$PUBLIC_KEY" | base64 --decode > public_key.der
-        openssl pkey -inform DER -pubin -in public_key.der -out public_key.pem
+
+        # Try to convert DER to PEM format using RSA (replace with appropriate key type if not RSA)
+        openssl rsa -inform DER -pubin -in public_key.der -out public_key.pem -text || echo "Conversion failed with RSA"
+
+        # Print the key in PEM format
         echo "Public Key PEM Format:"
         cat public_key.pem
+
         echo "IP Address: ${{ steps.preprod_ip.outputs.ip_address }}"
+
+        # Encrypt the IP address
         ENCRYPTED_VALUE=$(echo -n "${{ steps.preprod_ip.outputs.ip_address }}" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem | base64)
         echo "Encrypted Value: $ENCRYPTED_VALUE"
+
+        # Clean up temporary files
         rm public_key.pem
         rm public_key.der
+
+        # Prepare the payload
         PAYLOAD="{\"encrypted_value\":\"$ENCRYPTED_VALUE\",\"key_id\":\"$KEY_ID\"}"
         echo "Payload: $PAYLOAD"
+
+        # Make the API call
         curl -u "${{ github.actor }}:${{ secrets.ACTIONS_PAT }}" -X PUT -H "Content-Type: application/json" \
              -d "$PAYLOAD" "https://api.github.com/repos/${{ github.repository }}/actions/secrets/PREPROD_IP_ADDRESS"
