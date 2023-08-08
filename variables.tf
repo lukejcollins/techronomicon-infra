@@ -43,4 +43,5 @@ variable "ROUTE_53_RESOURCES_BOOL" {
 
 variable "PREPROD_IP_ADDRESS" {
   type = string
+  default = ""
 }
