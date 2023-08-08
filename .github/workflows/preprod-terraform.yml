@@ -62,46 +62,10 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
 
-    - name: Get Public Key
-      run: |
-        KEY_RESPONSE=$(curl -H "Authorization: token ${{ secrets.ACTIONS_PAT }}" \
-                             -H "Accept: application/vnd.github.v3+json" \
-                             https://api.github.com/repos/${{ github.repository }}/actions/secrets/public-key)
-        echo "KEY_RESPONSE=$KEY_RESPONSE" > key_response.txt
-
-    - name: Extract Key ID and Public Key
-      run: |
-        KEY_ID=$(grep '"key_id":' key_response.txt | cut -d ':' -f 2 | sed 's/"//g' | tr -d '[:space:]')
-        PUBLIC_KEY=$(grep '"key":' key_response.txt | cut -d ':' -f 2 | sed 's/"//g' | tr -d '[:space:]')
-        echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
-        echo "PUBLIC_KEY=$PUBLIC_KEY" >> $GITHUB_ENV
-
-    - name: Encrypt and Set Secret
-      run: |
-        echo "Public Key Base64 Encoded: $PUBLIC_KEY"
-        echo -n "$PUBLIC_KEY" | base64 --decode > public_key.der
-
-        # Try to convert DER to PEM format using RSA (replace with appropriate key type if not RSA)
-        openssl rsa -inform DER -pubin -in public_key.der -out public_key.pem -text || echo "Conversion failed with RSA"
-
-        # Print the key in PEM format
-        echo "Public Key PEM Format:"
-        cat public_key.pem
-
-        echo "IP Address: ${{ steps.preprod_ip.outputs.ip_address }}"
-
-        # Encrypt the IP address
-        ENCRYPTED_VALUE=$(echo -n "${{ steps.preprod_ip.outputs.ip_address }}" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem | base64)
-        echo "Encrypted Value: $ENCRYPTED_VALUE"
-
-        # Clean up temporary files
-        rm public_key.pem
-        rm public_key.der
-
-        # Prepare the payload
-        PAYLOAD="{\"encrypted_value\":\"$ENCRYPTED_VALUE\",\"key_id\":\"$KEY_ID\"}"
-        echo "Payload: $PAYLOAD"
-
-        # Make the API call
-        curl -u "${{ github.actor }}:${{ secrets.ACTIONS_PAT }}" -X PUT -H "Content-Type: application/json" \
-             -d "$PAYLOAD" "https://api.github.com/repos/${{ github.repository }}/actions/secrets/PREPROD_IP_ADDRESS"
+    - name: Set Action Secret
+      uses: hmanzur/actions-set-secret@v2.0.0
+      with:
+        name: 'PREPROD_IP_ADDRESS'
+        value: ${{ steps.preprod_ip.outputs.ip_address }}
+        repository: ${{ github.repository }}
+        token: ${{ secrets.ACTIONS_PAT }}
