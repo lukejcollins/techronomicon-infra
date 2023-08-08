@@ -57,7 +57,7 @@ jobs:
 
     - name: Get Preprod IP Address
       id: preprod_ip
-      run: echo "PREPROD_IP_ADDRESS=$(terraform output instance_ip_address)" >> $GITHUB_ENV
+      run: echo "PREPROD_IP_ADDRESS=$(terraform output -raw instance_ip_address)" >> $GITHUB_ENV
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
