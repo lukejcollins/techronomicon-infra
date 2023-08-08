@@ -62,13 +62,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
 
-    - name: Get Preprod IP Address
-      id: preprod_ip
-      run: echo "::set-output name=ip_address::$(terraform output -raw instance_ip_address)"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
-
     - name: Get Public Key
       run: |
         KEY_RESPONSE=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
