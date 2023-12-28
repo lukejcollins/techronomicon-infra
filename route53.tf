@@ -25,42 +25,40 @@ resource "aws_route53_record" "preprod_subdomain_a" {
 }
 
 # MX Records
-resource "aws_route53_record" "my_domain_mx1" {
+resource "aws_route53_record" "my_domain_mx" {
   count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
   zone_id = aws_route53_zone.my_domain[0].zone_id
   name    = var.DOMAIN_NAME
   type    = "MX"
   ttl     = 300
-  records = ["10 mx01.mail.icloud.com."]
-}
-
-resource "aws_route53_record" "my_domain_mx2" {
-  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
-  zone_id = aws_route53_zone.my_domain[0].zone_id
-  name    = var.DOMAIN_NAME
-  type    = "MX"
-  ttl     = 300
-  records = ["10 mx02.mail.icloud.com."]
+  records = [
+    "10 mx01.mail.icloud.com.",
+    "10 mx02.mail.icloud.com."
+  ]
 }
 
 # TXT Record
-resource "aws_route53_record" "my_domain_txt" {
+resource "aws_route53_record" "my_domain_txt_apple" {
   count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
   zone_id = aws_route53_zone.my_domain[0].zone_id
   name    = var.DOMAIN_NAME
   type    = "TXT"
   ttl     = 300
-  records = ["apple-domain=ZDELSY8STv5VAVvl"]
+  records = [
+    "apple-domain=ZDELSY8STv5VAVvl"
+  ]
 }
 
 # SPF Record
-resource "aws_route53_record" "my_domain_spf" {
+resource "aws_route53_record" "my_domain_txt_spf" {
   count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
   zone_id = aws_route53_zone.my_domain[0].zone_id
   name    = var.DOMAIN_NAME
   type    = "TXT"
   ttl     = 300
-  records = ["v=spf1 include:icloud.com ~all"]
+  records = [
+    "v=spf1 include:icloud.com ~all"
+  ]
 }
 
 # DKIM Record
