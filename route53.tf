@@ -23,3 +23,39 @@ resource "aws_route53_record" "preprod_subdomain_a" {
   ttl     = 300
   records = [var.PREPROD_IP_ADDRESS]
 }
+
+# MX Records
+resource "aws_route53_record" "my_domain_mx" {
+  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
+  zone_id = aws_route53_zone.my_domain[0].zone_id
+  name    = var.DOMAIN_NAME
+  type    = "MX"
+  ttl     = 300
+  records = [
+    "10 mx01.mail.icloud.com.",
+    "10 mx02.mail.icloud.com."
+  ]
+}
+
+# TXT Record
+resource "aws_route53_record" "my_domain_txt_apple" {
+  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
+  zone_id = aws_route53_zone.my_domain[0].zone_id
+  name    = var.DOMAIN_NAME
+  type    = "TXT"
+  ttl     = 300
+  records = [
+    "apple-domain=ZDELSY8STv5VAVvl",
+    "v=spf1 include:icloud.com ~all"
+  ]
+}
+
+# DKIM Record
+resource "aws_route53_record" "my_domain_dkim" {
+  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
+  zone_id = aws_route53_zone.my_domain[0].zone_id
+  name    = "sig1._domainkey.${var.DOMAIN_NAME}"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["sig1.dkim.lukecollins.dev.at.icloudmailadadmin.com."]
+}
