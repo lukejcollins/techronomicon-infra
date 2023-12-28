@@ -45,18 +45,7 @@ resource "aws_route53_record" "my_domain_txt_apple" {
   type    = "TXT"
   ttl     = 300
   records = [
-    "apple-domain=ZDELSY8STv5VAVvl"
-  ]
-}
-
-# SPF Record
-resource "aws_route53_record" "my_domain_txt_spf" {
-  count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
-  zone_id = aws_route53_zone.my_domain[0].zone_id
-  name    = var.DOMAIN_NAME
-  type    = "TXT"
-  ttl     = 300
-  records = [
+    "apple-domain=ZDELSY8STv5VAVvl",
     "v=spf1 include:icloud.com ~all"
   ]
 }
