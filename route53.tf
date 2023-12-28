@@ -57,5 +57,5 @@ resource "aws_route53_record" "my_domain_dkim" {
   name    = "sig1._domainkey"
   type    = "CNAME"
   ttl     = 300
-  records = ["sig1.dkim.lukecollins.dev.at.icloudmailadadmin.com."]
+  records = ["sig1.dkim.lukecollins.dev.at.icloudmailadmin.com."]
 }
