@@ -50,7 +50,7 @@ resource "aws_route53_record" "my_domain_txt" {
   name    = var.DOMAIN_NAME
   type    = "TXT"
   ttl     = 300
-  records = ["\"apple-domain=ZDELSY8STv5VAVvl\""]
+  records = ["apple-domain=ZDELSY8STv5VAVvl"]
 }
 
 # SPF Record
@@ -60,7 +60,7 @@ resource "aws_route53_record" "my_domain_spf" {
   name    = var.DOMAIN_NAME
   type    = "TXT"
   ttl     = 300
-  records = ["\"v=spf1 include:icloud.com ~all\""]
+  records = ["v=spf1 include:icloud.com ~all"]
 }
 
 # DKIM Record
