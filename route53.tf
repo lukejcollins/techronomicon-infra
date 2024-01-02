@@ -45,7 +45,7 @@ resource "aws_route53_record" "my_domain_txt_apple" {
   type    = "TXT"
   ttl     = 300
   records = [
-    "apple-domain=ZDELSY8STv5VAVvl",
+    "apple-domain=NRN6vsI89kvt10mT",
     "v=spf1 include:icloud.com ~all"
   ]
 }
@@ -54,8 +54,8 @@ resource "aws_route53_record" "my_domain_txt_apple" {
 resource "aws_route53_record" "my_domain_dkim" {
   count   = var.ROUTE_53_RESOURCES_BOOL ? 1 : 0
   zone_id = aws_route53_zone.my_domain[0].zone_id
-  name    = "sig1._domainkey.${var.DOMAIN_NAME}"
+  name    = "sig1._domainkey"
   type    = "CNAME"
   ttl     = 300
-  records = ["sig1.dkim.lukecollins.dev.at.icloudmailadadmin.com."]
+  records = ["sig1.dkim.lukecollins.dev.at.icloudmailadmin.com."]
 }
