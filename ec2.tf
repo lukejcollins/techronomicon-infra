@@ -48,7 +48,7 @@ resource "aws_instance" "example" {
 
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
-  key_name = "techronomicon-ssh"
+  key_name = "techronomicon-ssh-key"
   user_data = <<-EOF
     #!/bin/bash
     mkdir -p /etc/ecs
