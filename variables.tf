@@ -37,7 +37,7 @@ variable "DOMAIN_NAME" {
   default = ""
 }
 
-variable "ROUTE_53_RESOURCES_BOOL" {
+variable "EC2_SG_RESOURCES_BOOL" {
   type = bool
 }
 
