@@ -32,11 +32,6 @@ variable "STATE_BUCKET_NAME" {
   type = string
 }
 
-variable "DOMAIN_NAME" {
-  type = string
-  default = ""
-}
-
 variable "EC2_SG_RESOURCES_BOOL" {
   type = bool
 }
@@ -49,4 +44,8 @@ variable "PREPROD_IP_ADDRESS" {
 variable "SNAPSHOT_IDENTIFIER" {
   type = string
   default = ""
+}
+
+variable "USE_SNAPSHOT" {
+  type = bool
 }

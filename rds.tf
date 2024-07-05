@@ -52,5 +52,5 @@ resource "aws_db_instance" "db" {
   publicly_accessible   = false
 
   # Restore from a snapshot
-  snapshot_identifier   = var.SNAPSHOT_IDENTIFIER  # Uses the SNAPSHOT_IDENTIFIER variable for the snapshot ID
+  snapshot_identifier   = var.USE_SNAPSHOT ? var.SNAPSHOT_IDENTIFIER : null
 }

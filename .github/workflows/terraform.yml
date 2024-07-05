@@ -1,62 +1,120 @@
-name: 'Terraform Prod Deployment'
+name: 'Terraform Deployment'
 
 on:
   pull_request:
+    types: [opened, synchronize, closed]
+    paths:
+      - '**/*.tf'  # Only trigger the workflow if any .tf file is modified
 
 jobs:
-  terraform:
-    name: 'Terraform'
-    if: contains(github.event.pull_request.labels.*.name, 'prod')
+  terraform_preprod:
+    if: github.event.action != 'closed'  # Run only if the PR is not closed
+    name: 'Terraform Preprod'
     runs-on: ubuntu-latest
+    environment: preprod
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    - name: Terraform Init
-      run: terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Terraform Validate
-      run: terraform validate
+      - name: Terraform Validate
+        run: terraform validate
 
-    - name: Terraform Plan
-      run: terraform plan
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
-        TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
-        TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
-        TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
-        TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
-        TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-        TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
-        TF_VAR_PREPROD_IP_ADDRESS: ${{ secrets.PREPROD_IP_ADDRESS }}
-        TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
-        TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
-        TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
-        TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
-        TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
-        TF_VAR_DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-        TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
-        TF_VAR_PREPROD_IP_ADDRESS: ${{ secrets.PREPROD_IP_ADDRESS }}
-        TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+
+  terraform_prod:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true  # Run only if the PR is closed and merged
+    name: 'Terraform Prod'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
