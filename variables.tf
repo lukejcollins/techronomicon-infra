@@ -45,3 +45,8 @@ variable "PREPROD_IP_ADDRESS" {
   type = string
   default = ""
 }
+
+variable "SNAPSHOT_IDENTIFIER" {
+  type = string
+  default = ""
+}

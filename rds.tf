@@ -50,4 +50,7 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot   = true  # Skips creating a final DB snapshot when the DB instance is deleted
 
   publicly_accessible   = false
+
+  # Restore from a snapshot
+  snapshot_identifier   = var.SNAPSHOT_IDENTIFIER  # Uses the SNAPSHOT_IDENTIFIER variable for the snapshot ID
 }
