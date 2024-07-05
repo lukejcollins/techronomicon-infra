@@ -34,11 +34,6 @@ resource "aws_db_subnet_group" "my_db_subnet_group" {
   }
 }
 
-# Determine value of snapshot_identifier
-locals {
-  snapshot_identifier = var.USE_SNAPSHOT ? var.SNAPSHOT_IDENTIFIER : null
-}
-
 # The RDS instance
 resource "aws_db_instance" "db" {
   identifier_prefix     = "postgres-db"
@@ -57,10 +52,5 @@ resource "aws_db_instance" "db" {
   publicly_accessible   = false
 
   # Restore from a snapshot
-  dynamic "snapshot_identifier" {
-    for_each = var.USE_SNAPSHOT ? [var.SNAPSHOT_IDENTIFIER] : []
-    content {
-      snapshot_identifier = snapshot_identifier.value
-    }
-  }
+  snapshot_identifier   = var.USE_SNAPSHOT ? var.SNAPSHOT_IDENTIFIER : null
 }
