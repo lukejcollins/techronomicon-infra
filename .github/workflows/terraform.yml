@@ -103,6 +103,7 @@ jobs:
           TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+          TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
@@ -120,3 +121,4 @@ jobs:
           TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+          TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
