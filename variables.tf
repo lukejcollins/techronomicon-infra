@@ -49,3 +49,7 @@ variable "SNAPSHOT_IDENTIFIER" {
 variable "USE_SNAPSHOT" {
   type = bool
 }
+
+variable "USE_LATEST" {
+  type        = bool
+}

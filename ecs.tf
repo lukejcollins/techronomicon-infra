@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "task" {
   [
     {
       "name": "techronomicon-container",
-      "image": "ghcr.io/lukejcollins/techronomicon/techronomicon:latest",
+      "image": "ghcr.io/lukejcollins/techronomicon/techronomicon:${var.use_latest ? "latest" : "preprod"}",
       "cpu": 128,
       "memory": 256,
       "essential": true,
