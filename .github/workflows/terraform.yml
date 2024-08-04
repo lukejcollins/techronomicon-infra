@@ -105,23 +105,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: configure aws credentials
+        id: aws-creds
+        uses: aws-actions/configure-aws-credentials@v4
+        continue-on-error: true
+        with:
+          role-to-assume: ${{ secrets.GH_ACTIONS_IAM_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform plan
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
           TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
           TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
@@ -136,10 +156,16 @@ jobs:
           TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform apply -auto-approve
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
           TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
           TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
