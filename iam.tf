@@ -108,3 +108,46 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "ecs_instance_profile"
   role = aws_iam_role.ecs_role.name
 }
+
+# Setup Github as an identity provider
+resource "aws_iam_openid_connect_provider" "default" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = [
+    "sts.amazonaws.com",
+  ]
+
+  thumbprint_list = ["d89e3bd43d5d909b47a18977aa9d5ce36cee184c"]
+}
+
+# Create role for Github workflow to assume
+resource "aws_iam_role" "github-actions-role" {
+  name = "github-actions-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.default.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
+	  },
+	  StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:lukejcollins/techronomicon-infra:*"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Attach AdministratorAccess policy to Github Actions role
+resource "aws_iam_role_policy_attachment" "github-actions-role-attachement" {
+  role       = aws_iam_role.github-actions-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
