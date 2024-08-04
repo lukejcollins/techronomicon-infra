@@ -6,6 +6,10 @@ on:
     paths:
       - '**/*.tf'  # Only trigger the workflow if any .tf file is modified
 
+permissions:
+      id-token: write
+      contents: read
+
 jobs:
   terraform_preprod:
     if: github.event.action != 'closed'  # Run only if the PR is not closed
@@ -16,6 +20,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.GH_ACTIONS_IAM_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
