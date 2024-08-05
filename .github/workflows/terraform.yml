@@ -70,6 +70,7 @@ jobs:
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
           TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}
 
       - name: Terraform Apply
         run: |
@@ -94,6 +95,7 @@ jobs:
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
           TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}
 
   terraform_prod:
     if: github.event.action == 'closed' && github.event.pull_request.merged == true  # Run only if the PR is closed and merged
@@ -154,6 +156,7 @@ jobs:
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
           TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}
 
       - name: Terraform Apply
         run: |
@@ -178,3 +181,4 @@ jobs:
           TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
           TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
           TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}

@@ -35,7 +35,11 @@ POLICY
 
 resource "aws_s3_bucket_public_access_block" "techronomicon" {
   bucket = aws_s3_bucket.techronomicon.id
-
   block_public_acls   = false
   block_public_policy = false
+}
+
+# Setup bucket for cloudwatch config
+resource "aws_s3_bucket" "cloudwatch" {
+  bucket = var.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME
 }
