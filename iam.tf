@@ -149,8 +149,7 @@ resource "aws_iam_policy" "cwlogs_policy" {
           "logs:PutRetentionPolicy"
         ],
         Resource = [
-          "arn:aws:logs:*:*:log-group:/aws/ecs/*",
-          "arn:aws:logs:*:*:log-group:error.log"
+          aws_cloudwatch_log_group.error_log.arn
         ],
         Effect   = "Allow"
       },
@@ -162,6 +161,7 @@ resource "aws_iam_policy" "cwlogs_policy" {
     ]
   })
 }
+
 
 # Attach EC2 Cloudwatch policy to role
 resource "aws_iam_role_policy_attachment" "cwlogs_policy_attachment" {
