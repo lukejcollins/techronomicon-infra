@@ -148,7 +148,10 @@ resource "aws_iam_policy" "cwlogs_policy" {
           "logs:DescribeLogStreams",
           "logs:PutRetentionPolicy"
         ],
-        Resource = "arn:aws:logs:*:*:log-group:/aws/ecs/*",
+        Resource = [
+          "arn:aws:logs:*:*:log-group:/aws/ecs/*",
+          "arn:aws:logs:*:*:log-group:error.log"
+        ],
         Effect   = "Allow"
       },
       {
