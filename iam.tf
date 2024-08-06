@@ -81,6 +81,35 @@ resource "aws_iam_role_policy_attachment" "ecs_role_parameter_store_access" {
   policy_arn = aws_iam_policy.parameter_store_access.arn
 }
 
+# Create copy to copy files from the cloudwatch-logs-config bucket
+resource "aws_iam_policy" "cloudwatch_logs_config_copy_policy" {
+  name        = "cloudwatch_logs_config_s3_copy"
+  description = "IAM policy to allow copying files from the cloudwatch-logs-config-8473324 bucket"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:CopyObject"
+        ]
+        Resource = [
+	  "arn:aws:s3:::${var.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME}",
+          "arn:aws:s3:::${var.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Attach S3CopyPolicy to the role
+resource "aws_iam_role_policy_attachment" "ecs_role_cloudwatch_logs_config_copy_policy" {
+  role = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.cloudwatch_logs_config_copy_policy.arn
+}
+
 # Create IAM role
 resource "aws_iam_role" "ecs_role" {
   name = "ecs_role"
