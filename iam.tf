@@ -135,7 +135,7 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
 # Create policy for EC2 to interact with Cloudwatch logs
 resource "aws_iam_policy" "cwlogs_policy" {
   name        = "CWLogsPolicy"
-  description = "A policy that allows sufficient permissions for CloudWatch logs."
+  description = "A policy that allows sufficient permissions for CloudWatch logs and metric data."
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -151,6 +151,11 @@ resource "aws_iam_policy" "cwlogs_policy" {
         Resource = "arn:aws:logs:*:*:log-group:/aws/ecs/*",
         Effect   = "Allow"
       },
+      {
+        Action = "cloudwatch:PutMetricData",
+        Resource = "*",
+        Effect   = "Allow"
+      }
     ]
   })
 }
