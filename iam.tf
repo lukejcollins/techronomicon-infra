@@ -148,9 +148,7 @@ resource "aws_iam_policy" "cwlogs_policy" {
           "logs:DescribeLogStreams",
           "logs:PutRetentionPolicy"
         ],
-        Resource = [
-          aws_cloudwatch_log_group.error_log.arn
-        ],
+        Resource = "*",
         Effect   = "Allow"
       },
       {
