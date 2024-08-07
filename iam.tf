@@ -81,6 +81,35 @@ resource "aws_iam_role_policy_attachment" "ecs_role_parameter_store_access" {
   policy_arn = aws_iam_policy.parameter_store_access.arn
 }
 
+# Create copy to copy files from the cloudwatch-logs-config bucket
+resource "aws_iam_policy" "cloudwatch_logs_config_copy_policy" {
+  name        = "cloudwatch_logs_config_s3_copy"
+  description = "IAM policy to allow copying files from the cloudwatch-logs-config bucket"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:CopyObject"
+        ]
+        Resource = [
+	  "arn:aws:s3:::${var.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME}",
+          "arn:aws:s3:::${var.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Attach S3CopyPolicy to the role
+resource "aws_iam_role_policy_attachment" "ecs_role_cloudwatch_logs_config_copy_policy" {
+  role = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.cloudwatch_logs_config_copy_policy.arn
+}
+
 # Create IAM role
 resource "aws_iam_role" "ecs_role" {
   name = "ecs_role"
@@ -102,6 +131,42 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
+
+# Create policy for EC2 to interact with Cloudwatch logs
+resource "aws_iam_policy" "cwlogs_policy" {
+  name        = "CWLogsPolicy"
+  description = "A policy that allows sufficient permissions for CloudWatch logs and metric data."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:PutRetentionPolicy"
+        ],
+        Resource = "*",
+        Effect   = "Allow"
+      },
+      {
+        Action = "cloudwatch:PutMetricData",
+        Resource = "*",
+        Effect   = "Allow"
+      }
+    ]
+  })
+}
+
+
+# Attach EC2 Cloudwatch policy to role
+resource "aws_iam_role_policy_attachment" "cwlogs_policy_attachment" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.cwlogs_policy.arn
+}
+
 
 # Create IAM instance profile
 resource "aws_iam_instance_profile" "ecs_instance_profile" {

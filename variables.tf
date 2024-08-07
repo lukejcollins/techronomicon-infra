@@ -36,11 +36,6 @@ variable "EC2_SG_RESOURCES_BOOL" {
   type = bool
 }
 
-variable "PREPROD_IP_ADDRESS" {
-  type = string
-  default = ""
-}
-
 variable "SNAPSHOT_IDENTIFIER" {
   type = string
   default = ""
@@ -51,5 +46,10 @@ variable "USE_SNAPSHOT" {
 }
 
 variable "USE_LATEST" {
-  type        = bool
+  type = bool
+}
+
+variable "CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME" {
+  type = string
+  default = ""
 }
