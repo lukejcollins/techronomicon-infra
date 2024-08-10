@@ -1,0 +1,92 @@
+on:
+  workflow_dispatch
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  terraform_preprod:
+    name: 'Terraform Preprod'
+    runs-on: ubuntu-latest
+    environment: preprod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: configure aws credentials
+        id: aws-creds
+        uses: aws-actions/configure-aws-credentials@v4
+        continue-on-error: true
+        with:
+          role-to-assume: ${{ secrets.GH_ACTIONS_IAM_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform init -backend-config="bucket=${{ secrets.STATE_BUCKET_NAME }}"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform plan
+        env:
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+          TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}
+
+      - name: Terraform Apply
+        run: |
+          if [ "${{ steps.aws-creds.outcome }}" == "failure" ]; then
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            echo "Using access keys"
+          else
+            echo "Using IAM role"
+          fi
+          terraform apply -auto-approve
+        env:
+          TF_VAR_DB_USERNAME: ${{ secrets.TF_VAR_DB_USERNAME }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TF_VAR_TECHRONOMICON_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_TECHRONOMICON_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_TECHRONOMICON_STORAGE_BUCKET_NAME: ${{ secrets.TECHRONOMICON_STORAGE_BUCKET_NAME }}
+          TF_VAR_TECHRONOMICON_RDS_DB_NAME: ${{ secrets.TECHRONOMICON_RDS_DB_NAME }}
+          TF_VAR_STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          TF_VAR_EC2_SG_RESOURCES_BOOL: ${{ secrets.EC2_SG_RESOURCES_BOOL }}
+          TF_VAR_SNAPSHOT_IDENTIFIER: ${{ secrets.SNAPSHOT_IDENTIFIER }}
+          TF_VAR_USE_SNAPSHOT: ${{ secrets.USE_SNAPSHOT }}
+          TF_VAR_USE_LATEST: ${{ secrets.USE_LATEST }}
+          TF_VAR_CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME: ${{ secrets.CLOUDWATCH_LOGS_CONFIG_BUCKET_NAME }}
