@@ -73,7 +73,7 @@ resource "aws_security_group" "instance_sg" {
 
 # EC2 instance
 resource "aws_instance" "example" {
-  ami           = "ami-0fb2f0b847d44d4f0"
+  ami           = "ami-0a2202cf4c36161a1"
   instance_type = "t2.micro"
 
   iam_instance_profile        = aws_iam_instance_profile.ecs_instance_profile.name
