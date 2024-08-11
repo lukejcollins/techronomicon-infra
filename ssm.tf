@@ -21,10 +21,10 @@ resource "aws_ssm_parameter" "techronomicon_parameters" {
   value = each.value
 }
 
-# Store EC2 IP in Parameter Store
-resource "aws_ssm_parameter" "public_ip" {
-  name        = "/TECHRONOMICON_IP"
-  description = "Public IP of the EC2 instance"
+# Store EC2 Instance ID in Parameter Store
+resource "aws_ssm_parameter" "instance_id" {
+  name        = "/techronomicon/instance_id"
+  description = "Instance ID of the EC2 instance"
   type        = "String"
-  value       = aws_instance.example.public_ip
+  value       = aws_instance.example.id
 }
