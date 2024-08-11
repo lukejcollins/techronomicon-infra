@@ -88,7 +88,6 @@ resource "aws_instance" "example" {
     dnf update -y
     dnf install python3-pip git -y
     pip3 install ansible
-    
   EOF
 
   tags = {
