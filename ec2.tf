@@ -83,14 +83,6 @@ resource "aws_instance" "example" {
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
   key_name = "techronomicon-ssh-key"
-  user_data = <<-EOF
-    #!/bin/bash
-    mkdir -p /etc/ecs
-    echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
-    dnf install ecs-init nginx python3-pip -y
-    systemctl enable --now --no-block ecs.service
-    pip3 install certbot certbot-nginx
-  EOF
 
   tags = {
     Name = "techronomicon-instance"
