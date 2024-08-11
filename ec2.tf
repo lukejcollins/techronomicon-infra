@@ -73,7 +73,7 @@ resource "aws_security_group" "instance_sg" {
 
 # EC2 instance
 resource "aws_instance" "example" {
-  ami           = "ami-0fb2f0b847d44d4f0"
+  ami           = "ami-0a2202cf4c36161a1"
   instance_type = "t2.micro"
 
   iam_instance_profile        = aws_iam_instance_profile.ecs_instance_profile.name
@@ -85,11 +85,9 @@ resource "aws_instance" "example" {
   key_name = "techronomicon-ssh-key"
   user_data = <<-EOF
     #!/bin/bash
-    mkdir -p /etc/ecs
-    echo "ECS_CLUSTER=techronomicon-cluster" > /etc/ecs/ecs.config
-    dnf install ecs-init nginx python3-pip -y
-    systemctl enable --now --no-block ecs.service
-    pip3 install certbot certbot-nginx
+    dnf update -y
+    dnf install python3-pip git -y
+    pip3 install ansible
   EOF
 
   tags = {

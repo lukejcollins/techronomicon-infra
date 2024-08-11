@@ -167,6 +167,11 @@ resource "aws_iam_role_policy_attachment" "cwlogs_policy_attachment" {
   policy_arn = aws_iam_policy.cwlogs_policy.arn
 }
 
+# Attach SSM policy to role
+resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
 
 # Create IAM instance profile
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
@@ -203,7 +208,10 @@ resource "aws_iam_role" "github-actions-role" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
 	  },
 	  StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:lukejcollins/techronomicon-infra:*"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:lukejcollins/techronomicon-infra:*",
+              "repo:lukejcollins/techronomicon-ansible:*"
+	    ]
           }
         }
       }
