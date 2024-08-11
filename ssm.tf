@@ -23,7 +23,7 @@ resource "aws_ssm_parameter" "techronomicon_parameters" {
 
 # Store EC2 Instance ID in Parameter Store
 resource "aws_ssm_parameter" "instance_id" {
-  name        = "/techronomicon/instance_id"
+  name        = "INSTANCE_ID"
   description = "Instance ID of the EC2 instance"
   type        = "String"
   value       = aws_instance.example.id
