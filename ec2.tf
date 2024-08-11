@@ -83,6 +83,13 @@ resource "aws_instance" "example" {
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
   key_name = "techronomicon-ssh-key"
+  user_data = <<-EOF
+    #!/bin/bash
+    dnf update -y
+    dnf install python3-pip git -y
+    pip3 install ansible
+    
+  EOF
 
   tags = {
     Name = "techronomicon-instance"
